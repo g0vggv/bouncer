@@ -1,0 +1,25 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/bouncer', '-t', 'asia.gcr.io/$PROJECT_ID/bouncer:$COMMIT_SHA', '-f', './Dockerfile', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ["push", "asia.gcr.io/$PROJECT_ID/bouncer"]
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - 'replace'
+  - 'configmap'
+  - 'bouncer-nginx-conf'
+  - '--from-file=gcloud/nginx.conf=nginx.conf'
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=asia-east1-c'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=hypo'
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - 'set'
+  - 'image'
+  - 'deployment/bouncer'
+  - 'bouncer=asia.gcr.io/$PROJECT_ID/bouncer:$COMMIT_SHA'
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=asia-east1-c'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=hypo'
+
+#kubectl create configmap nginx-proxy-conf --from-file=proxy.conf

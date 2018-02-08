@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bouncer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: bouncer
+    spec:
+      containers:
+        - image: nginx
+          name: bouncer-web
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "10m"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx","-s","quit"]
+          volumeMounts:
+            - name: "bouncer-nginx-conf"
+              mountPath: "/etc/nginx/conf.d"
+            - name: bouncer-socket
+              mountPath: /tmp
+          ports:
+            - containerPort: 18000
+              name: bouncer-tcp
+        - image: asia.gcr.io/ggv-notetool/bouncer
+          imagePullPolicy: Always
+          name: bouncer
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "10m"
+          envFrom:
+            - configMapRef:
+                name: bouncer-config
+      volumes:
+        - name: bouncer-socket
+          emptyDir:
+        - name: "bouncer-nginx-conf"
+          configMap:
+            name: "bouncer-nginx-conf"
+            items:
+              - key: "nginx.conf"
+                path: "nginx.conf"
