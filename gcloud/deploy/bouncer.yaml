@@ -26,7 +26,7 @@ spec:
             - name: bouncer-socket
               mountPath: /tmp
             - name: "letsencrypt-acme"
-              mountPath: /letsencrypt
+              mountPath: /letsencrypt/.well-known/acme-challenge
           ports:
             - containerPort: 18000
               name: bouncer-tcp
