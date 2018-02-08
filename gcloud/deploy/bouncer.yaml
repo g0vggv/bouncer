@@ -25,6 +25,8 @@ spec:
               mountPath: "/etc/nginx/conf.d"
             - name: bouncer-socket
               mountPath: /tmp
+            - name: "letsencrypt-acme"
+              mountPath: /letsencrypt
           ports:
             - containerPort: 18000
               name: bouncer-tcp
@@ -41,6 +43,9 @@ spec:
       volumes:
         - name: bouncer-socket
           emptyDir:
+        - name: "letsencrypt-acme"
+          configMap:
+            name: "letsencrypt-acme"
         - name: "bouncer-nginx-conf"
           configMap:
             name: "bouncer-nginx-conf"
