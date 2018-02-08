@@ -5,19 +5,10 @@ steps:
   args: ["push", "asia.gcr.io/$PROJECT_ID/bouncer"]
 - name: 'gcr.io/cloud-builders/kubectl'
   args:
-  - 'create'
-  - 'configmap'
-  - 'bouncer-nginx-conf'
-  - '--from-file'
-  - 'gcloud/nginx.conf'
-  - '-o'
-  - 'yaml'
-  - '--dry-run'
-  - '|'
-  - 'kubectl'
   - 'replace'
+  - 'configmap'
   - '-f'
-  - '-'
+  - 'gcloud/nginx.yaml'
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=asia-east1-c'
   - 'CLOUDSDK_CONTAINER_CLUSTER=hypo'
