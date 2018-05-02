@@ -16,8 +16,8 @@ steps:
   args:
   - 'set'
   - 'image'
-  - 'deployment/bouncer'
-  - 'bouncer=asia.gcr.io/$PROJECT_ID/bouncer:$COMMIT_SHA'
+  - 'deployment/bouncer-stage'
+  - 'bouncer-stage=asia.gcr.io/$PROJECT_ID/bouncer:$COMMIT_SHA'
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=asia-east1-c'
   - 'CLOUDSDK_CONTAINER_CLUSTER=hypo'

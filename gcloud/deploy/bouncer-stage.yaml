@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bouncer-stage
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: bouncer-stage
+    spec:
+      containers:
+        - image: nginx
+          name: bouncer-web
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "10m"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx","-s","quit"]
+          volumeMounts:
+            - name: "bouncer-nginx-conf"
+              mountPath: "/etc/nginx/conf.d"
+            - name: bouncer-socket
+              mountPath: /tmp
+            - name: "letsencrypt-acme"
+              mountPath: /letsencrypt/.well-known/acme-challenge
+          ports:
+            - containerPort: 18000
+              name: bouncer-s-tcp
+        - image: asia.gcr.io/ggv-notetool/bouncer
+          imagePullPolicy: Always
+          name: bouncer-stage
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "10m"
+          envFrom:
+            - configMapRef:
+                name: bouncer-stage-config
+      volumes:
+        - name: bouncer-socket
+          emptyDir:
+        - name: "letsencrypt-acme"
+          configMap:
+            name: "letsencrypt-acme"
+        - name: "bouncer-nginx-conf"
+          configMap:
+            name: "bouncer-nginx-conf"
+            items:
+              - key: "nginx.conf"
+                path: "nginx.conf"
